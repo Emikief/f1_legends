@@ -4,6 +4,7 @@
   "private": true,
   "description": "Frontend Dashboard Cockpit pour le projet Formula 1 Legends DB",
   "scripts": {
+    "build": "echo 'Static frontend ready'",
     "start": "node server.js",
     "dev": "node server.js"
   },
