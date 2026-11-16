@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+**/node_modules/
+.yarn/
+**/.yarn/
+
+# Environment variables
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
+
+# OS files
+.DS_Store
+**/.DS_Store
+Thumbs.db
+**/Thumbs.db
+
+# Vercel output
+.vercel/
+**/.vercel/

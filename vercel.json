@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/(drivers.*|constructors.*|races.*|steps.*|api.*)",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/",
+      "destination": "/f1_legends-frontend/index.html"
+    },
+    {
+      "source": "/stylesheets/:path*",
+      "destination": "/f1_legends-frontend/stylesheets/:path*"
+    },
+    {
+      "source": "/javascripts/:path*",
+      "destination": "/f1_legends-frontend/javascripts/:path*"
+    },
+    {
+      "source": "/images/:path*",
+      "destination": "/f1_legends-frontend/images/:path*"
+    },
+    {
+      "source": "/index.html",
+      "destination": "/f1_legends-frontend/index.html"
+    },
+    {
+      "source": "/:path*",
+      "destination": "/f1_legends-frontend/:path*"
+    }
+  ]
+}

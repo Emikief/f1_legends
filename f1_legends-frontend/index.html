@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>F1 Legends DB — Pit Wall &amp; Cockpit Telemetry</title>
+    <!-- Google Fonts : Orbitron, Rajdhani & Share Tech Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="./stylesheets/style.css" />
+  </head>
+  <body>
+    <div id="cockpit-root">
+      <!-- Arrière-plan Garage F1 + Vignette -->
+      <div id="garage-bg">
+        <img
+          src="./images/cockpit_garage.jpg"
+          alt="Cockpit F1 Garage"
+          id="garage-photo"
+        />
+        <div id="garage-vignette"></div>
+        <div id="garage-bg">
+          <img
+            src="./images/cockpit_garage.jpg"
+            alt="Cockpit F1 Garage"
+            id="garage-photo"
+          />
+          <div id="garage-vignette"></div>
+          <div id="cockpit-ambient-glow"></div>
+          <div id="halo-pillar"></div>
+        </div>
+        <div id="halo-pillar"></div>
+      </div>
+
+      <!-- ================================================================
+         HUD SUPÉRIEUR (BARRE DE TÉLÉMÉTRIE & NAVIGATION)
+         ================================================================ -->
+      <header id="hud-top">
+        <div id="hud-left-wrap">
+          <div id="hud-left-info">
+            <div class="hud-brand">
+              <span class="f1-tag">F1</span>
+              <span class="hud-value">LEGENDS DB</span>
+            </div>
+            <span class="hud-label">PROJET NOSQL • MONGODB ATLAS</span>
+          </div>
+
+          <button
+            id="hud-livery-badge"
+            onclick="cycleTeamLivery()"
+            title="Cliquer pour changer le thème écurie"
+          >
+            <span id="hud-livery-logo"></span>
+            <div class="hud-livery-text">
+              <span class="hud-livery-sub">LIVRÉE ACTIVE</span>
+              <span id="hud-livery-name">F1 OFFICIAL</span>
+            </div>
+          </button>
+        </div>
+
+        <nav id="hud-center-tabs" aria-label="Navigation principale">
+          <button
+            class="hud-tab active"
+            data-screen="overview"
+            onclick="cockpitNav('overview')"
+          >
+            01 · TÉLÉMÉTRIE
+          </button>
+          <button
+            class="hud-tab"
+            data-screen="drivers"
+            onclick="cockpitNav('drivers')"
+          >
+            02 · PILOTES
+            <span class="tab-count" id="tab-count-drivers">881</span>
+          </button>
+          <button
+            class="hud-tab"
+            data-screen="constructors"
+            onclick="cockpitNav('constructors')"
+          >
+            03 · ÉCURIES <span class="tab-count" id="tab-count-ctors">214</span>
+          </button>
+          <button
+            class="hud-tab"
+            data-screen="races"
+            onclick="cockpitNav('races')"
+          >
+            04 · GRANDS PRIX
+            <span class="tab-count" id="tab-count-races">1172</span>
+          </button>
+          <button
+            class="hud-tab"
+            data-screen="nosql"
+            onclick="cockpitNav('nosql')"
+          >
+            05 · CONSOLE NOSQL
+          </button>
+        </nav>
+
+        <div id="hud-right-info">
+          <span class="hud-label">API BACKEND</span>
+          <span class="hud-value" id="hud-backend">CONNEXION...</span>
+        </div>
+      </header>
+
+      <!-- ================================================================
+         MONITEUR GAUCHE (EXPLORATION & COMMANDES)
+         ================================================================ -->
+      <section class="monitor" id="monitor-left">
+        <div class="monitor-bezel">
+          <div class="monitor-top-bar">
+            <span class="monitor-cam-dot"></span>
+            <span class="monitor-model">PIT-WALL UNIT A // DATA STREAM</span>
+            <button
+              class="monitor-zoom-btn"
+              onclick="toggleFocus('monitor-left')"
+              title="Agrandir / Réduire l'écran"
+            >
+              ⛶
+            </button>
+          </div>
+          <div class="monitor-screen" id="screen-left">
+            <div class="screen-boot">
+              <div class="boot-logo">F1 LEGENDS</div>
+              <div class="boot-text">INITIALISATION TÉLÉMÉTRIE ATLAS...</div>
+              <div class="boot-bar"><div class="boot-fill"></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================
+         MONITEUR DROIT (ANALYSE, GRAPHIQUES & TERMINAL)
+         ================================================================ -->
+      <section class="monitor" id="monitor-right">
+        <div class="monitor-bezel">
+          <div class="monitor-top-bar">
+            <span class="monitor-cam-dot cyan"></span>
+            <span class="monitor-model">PIT-WALL UNIT B // TELEMETRY</span>
+            <button
+              class="monitor-zoom-btn"
+              onclick="toggleFocus('monitor-right')"
+              title="Agrandir / Réduire l'écran"
+            >
+              ⛶
+            </button>
+          </div>
+          <div class="monitor-screen" id="screen-right">
+            <div class="screen-boot">
+              <div class="boot-logo">NOSQL HUB</div>
+              <div class="boot-text">SYNCHRONISATION COLLECTIONS...</div>
+              <div class="boot-bar"><div class="boot-fill"></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================
+         VOLANT F1 INTERACTIF (NAVIGATION & PAGINATION)
+         ================================================================ -->
+      <div id="steering-wheel-wrap">
+        <!-- Barre LEDs RPM -->
+        <div
+          id="rpm-bar-wrap"
+          onclick="toggleRPM()"
+          title="Activer / Couper la télémétrie moteur"
+        >
+          <div class="rpm-seg"></div>
+          <div class="rpm-seg"></div>
+          <div class="rpm-seg"></div>
+          <div class="rpm-seg"></div>
+          <div class="rpm-seg"></div>
+          <div class="rpm-seg"></div>
+          <div class="rpm-seg"></div>
+          <div class="rpm-seg"></div>
+          <div class="rpm-seg"></div>
+          <div class="rpm-seg"></div>
+          <div class="rpm-seg"></div>
+          <div class="rpm-seg"></div>
+        </div>
+
+        <div id="steering-wheel">
+          <div id="sw-outer-ring"></div>
+
+          <!-- Boutons gauche -->
+          <div class="sw-btn-cluster left">
+            <button
+              class="sw-btn sw-btn-red"
+              onclick="cockpitNav('overview')"
+              title="Vue d'ensemble"
+            >
+              OVR
+            </button>
+            <button
+              class="sw-btn sw-btn-blue"
+              onclick="cockpitNav('drivers')"
+              title="Pilotes"
+            >
+              DRV
+            </button>
+            <button
+              class="sw-btn sw-btn-yellow"
+              onclick="cockpitNav('constructors')"
+              title="Écuries"
+            >
+              TM
+            </button>
+            <button
+              class="sw-btn sw-btn-green"
+              onclick="cockpitNav('races')"
+              title="Grands Prix"
+            >
+              GP
+            </button>
+          </div>
+
+          <!-- Écran central du volant -->
+          <div id="sw-center">
+            <div class="sw-logo">F1 DB</div>
+            <div id="sw-display">
+              <div class="sw-gear" id="sw-gear-num">N</div>
+              <div class="sw-speed" id="sw-speed">PIT LIMITER</div>
+            </div>
+          </div>
+
+          <!-- Boutons droite -->
+          <div class="sw-btn-cluster right">
+            <button
+              class="sw-btn sw-btn-purple"
+              onclick="cockpitNav('nosql')"
+              title="Console NoSQL"
+            >
+              SQL
+            </button>
+            <button
+              class="sw-btn sw-btn-white"
+              onclick="resetCockpit()"
+              title="Réinitialiser vue, filtres et éclairage"
+            >
+              RST
+            </button>
+            <button
+              class="sw-btn sw-btn-orange"
+              onclick="runQuickAntonelli()"
+              title="Fiche Kimi Antonelli"
+            >
+              ANT
+            </button>
+            <button
+              class="sw-btn sw-btn-green"
+              onclick="cycleTeamLivery()"
+              title="Changer l'éclairage écurie (Livery)"
+            >
+              LIV
+            </button>
+          </div>
+
+          <!-- Pagaies de pagination -->
+          <button
+            class="paddle paddle-left"
+            onclick="prevPage()"
+            title="Page précédente"
+          >
+            ◀ PREV
+          </button>
+          <button
+            class="paddle paddle-right"
+            onclick="nextPage()"
+            title="Page suivante"
+          >
+            NEXT ▶
+          </button>
+        </div>
+      </div>
+
+      <!-- Overlay de focus plein écran -->
+      <div id="focus-backdrop" class="hidden" onclick="resetFocus()"></div>
+    </div>
+
+    <!-- ==================================================================
+       MODAL FICHE COMPLÈTE PILOTE
+       ================================================================== -->
+    <div
+      id="driver-modal"
+      class="modal-overlay hidden"
+      onclick="if (event.target === this) closeDriverModal();"
+    >
+      <div class="modal-box">
+        <button class="modal-close" onclick="closeDriverModal()">✕</button>
+        <div id="driver-modal-body"></div>
+      </div>
+    </div>
+
+    <script src="./javascripts/app.js"></script>
+  </body>
+</html>
