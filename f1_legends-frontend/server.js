@@ -48,6 +48,10 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`🏁 F1 Legends Frontend disponible sur http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  server.listen(PORT, () => {
+    console.log(`🏁 F1 Legends Frontend disponible sur http://localhost:${PORT}`);
+  });
+}
+
+module.exports = server;

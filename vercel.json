@@ -3,10 +3,12 @@
   "services": {
     "backend": {
       "root": "f1_legends-backend",
-      "framework": "express"
+      "framework": "express",
+      "entrypoint": "app.js"
     },
     "frontend": {
-      "root": "f1_legends-frontend"
+      "root": "f1_legends-frontend",
+      "entrypoint": "server.js"
     }
   },
   "rewrites": [
