@@ -4,6 +4,7 @@
   "private": true,
   "description": "F1 Legends - Pit Wall & Cockpit Dashboard",
   "scripts": {
+    "build": "echo 'Build complete'",
     "start": "node f1_legends-backend/bin/www",
     "dev:backend": "node f1_legends-backend/bin/www",
     "dev:frontend": "node f1_legends-frontend/server.js"

@@ -2,7 +2,43 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/(drivers.*|constructors.*|races.*|steps.*|api.*)",
+      "source": "/drivers/:path*",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/drivers",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/constructors/:path*",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/constructors",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/races/:path*",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/races",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/steps/:path*",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/steps",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/api",
       "destination": "/api/index.js"
     },
     {
