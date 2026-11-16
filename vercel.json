@@ -1,58 +1,58 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "services": {
-    "f1_legends-backend": {
+    "backend": {
       "root": "f1_legends-backend",
       "framework": "express"
     },
-    "f1_legends-frontend": {
+    "frontend": {
       "root": "f1_legends-frontend"
     }
   },
   "rewrites": [
     {
       "source": "/drivers/(.*)",
-      "destination": { "service": "f1_legends-backend" }
+      "destination": { "service": "backend" }
     },
     {
       "source": "/drivers",
-      "destination": { "service": "f1_legends-backend" }
+      "destination": { "service": "backend" }
     },
     {
       "source": "/constructors/(.*)",
-      "destination": { "service": "f1_legends-backend" }
+      "destination": { "service": "backend" }
     },
     {
       "source": "/constructors",
-      "destination": { "service": "f1_legends-backend" }
+      "destination": { "service": "backend" }
     },
     {
       "source": "/races/(.*)",
-      "destination": { "service": "f1_legends-backend" }
+      "destination": { "service": "backend" }
     },
     {
       "source": "/races",
-      "destination": { "service": "f1_legends-backend" }
+      "destination": { "service": "backend" }
     },
     {
       "source": "/steps/(.*)",
-      "destination": { "service": "f1_legends-backend" }
+      "destination": { "service": "backend" }
     },
     {
       "source": "/steps",
-      "destination": { "service": "f1_legends-backend" }
+      "destination": { "service": "backend" }
     },
     {
       "source": "/api/(.*)",
-      "destination": { "service": "f1_legends-backend" }
+      "destination": { "service": "backend" }
     },
     {
       "source": "/api",
-      "destination": { "service": "f1_legends-backend" }
+      "destination": { "service": "backend" }
     },
     {
       "source": "/(.*)",
-      "destination": { "service": "f1_legends-frontend" }
+      "destination": { "service": "frontend" }
     }
   ]
 }
