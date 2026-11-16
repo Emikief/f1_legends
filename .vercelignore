@@ -9,3 +9,4 @@ node_modules
 */node_modules
 .yarn
 */.yarn
+f1_legends-frontend/server.js

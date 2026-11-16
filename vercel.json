@@ -7,9 +7,7 @@
       "entrypoint": "app.js"
     },
     "frontend": {
-      "root": "f1_legends-frontend",
-      "framework": null,
-      "outputDirectory": "."
+      "root": "f1_legends-frontend"
     }
   },
   "rewrites": [
