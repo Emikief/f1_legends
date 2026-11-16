@@ -1,69 +1,58 @@
 {
-  "version": 2,
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "f1_legends-backend": {
+      "root": "f1_legends-backend",
+      "framework": "express"
+    },
+    "f1_legends-frontend": {
+      "root": "f1_legends-frontend"
+    }
+  },
   "rewrites": [
     {
-      "source": "/drivers/:path*",
-      "destination": "/api/index.js"
+      "source": "/drivers/(.*)",
+      "destination": { "service": "f1_legends-backend" }
     },
     {
       "source": "/drivers",
-      "destination": "/api/index.js"
+      "destination": { "service": "f1_legends-backend" }
     },
     {
-      "source": "/constructors/:path*",
-      "destination": "/api/index.js"
+      "source": "/constructors/(.*)",
+      "destination": { "service": "f1_legends-backend" }
     },
     {
       "source": "/constructors",
-      "destination": "/api/index.js"
+      "destination": { "service": "f1_legends-backend" }
     },
     {
-      "source": "/races/:path*",
-      "destination": "/api/index.js"
+      "source": "/races/(.*)",
+      "destination": { "service": "f1_legends-backend" }
     },
     {
       "source": "/races",
-      "destination": "/api/index.js"
+      "destination": { "service": "f1_legends-backend" }
     },
     {
-      "source": "/steps/:path*",
-      "destination": "/api/index.js"
+      "source": "/steps/(.*)",
+      "destination": { "service": "f1_legends-backend" }
     },
     {
       "source": "/steps",
-      "destination": "/api/index.js"
+      "destination": { "service": "f1_legends-backend" }
     },
     {
-      "source": "/api/:path*",
-      "destination": "/api/index.js"
+      "source": "/api/(.*)",
+      "destination": { "service": "f1_legends-backend" }
     },
     {
       "source": "/api",
-      "destination": "/api/index.js"
+      "destination": { "service": "f1_legends-backend" }
     },
     {
-      "source": "/",
-      "destination": "/f1_legends-frontend/index.html"
-    },
-    {
-      "source": "/stylesheets/:path*",
-      "destination": "/f1_legends-frontend/stylesheets/:path*"
-    },
-    {
-      "source": "/javascripts/:path*",
-      "destination": "/f1_legends-frontend/javascripts/:path*"
-    },
-    {
-      "source": "/images/:path*",
-      "destination": "/f1_legends-frontend/images/:path*"
-    },
-    {
-      "source": "/index.html",
-      "destination": "/f1_legends-frontend/index.html"
-    },
-    {
-      "source": "/:path*",
-      "destination": "/f1_legends-frontend/:path*"
+      "source": "/(.*)",
+      "destination": { "service": "f1_legends-frontend" }
     }
   ]
 }
