@@ -764,20 +764,62 @@ router.get("/", async (req, res) => {
       ];
     }
     const skip = (parseInt(page, 10) - 1) * parseInt(limit, 10);
-    const [races, total] = await Promise.all([
+
+    const [races, total, driversList, constructorsList] = await Promise.all([
       Race.find(filter)
         .sort({ season: -1, round_number: -1 })
         .skip(skip)
-        .limit(parseInt(limit, 10)),
+        .limit(parseInt(limit, 10))
+        .lean(),
       Race.countDocuments(filter),
+      Driver.find(
+        {},
+        { driver_id: 1, first_name: 1, last_name: 1, nationality: 1 },
+      ).lean(),
+      Constructor.find(
+        {},
+        { constructor_id: 1, name: 1, nationality: 1 },
+      ).lean(),
     ]);
+
+    const driversMap = Object.fromEntries(
+      driversList.map((d) => [d.driver_id, d]),
+    );
+    const constructorsMap = Object.fromEntries(
+      constructorsList.map((c) => [c.constructor_id, c]),
+    );
+
+    const enrichedRaces = races.map((race) => {
+      if (race.race_results?.podium) {
+        race.race_results.podium = race.race_results.podium.map((p) => ({
+          ...p,
+          driver_id: driversMap[p.driver_id] || p.driver_id,
+          constructor_id: constructorsMap[p.constructor_id] || p.constructor_id,
+        }));
+      }
+      if (race.race_results?.winner_driver_id) {
+        const winId = race.race_results.winner_driver_id;
+        race.race_results.winner_driver_id = driversMap[winId] || winId;
+      }
+      if (race.race_results?.qualifications?.poleman_driver_id) {
+        const poleId = race.race_results.qualifications.poleman_driver_id;
+        race.race_results.qualifications.poleman_driver_id =
+          driversMap[poleId] || poleId;
+      }
+      if (race.race_results?.fastest_lap?.driver_id) {
+        const flId = race.race_results.fastest_lap.driver_id;
+        race.race_results.fastest_lap.driver_id = driversMap[flId] || flId;
+      }
+      return race;
+    });
+
     res.json({
       result: true,
-      count: races.length,
+      count: enrichedRaces.length,
       total,
       page: parseInt(page, 10),
       totalPages: Math.ceil(total / parseInt(limit, 10)),
-      races,
+      races: enrichedRaces,
     });
   } catch (error) {
     res.status(500).json({ result: false, error: error.message });
@@ -791,7 +833,17 @@ router.get("/detail/:id", async (req, res) => {
     const query = /^\d+$/.test(param)
       ? { _id: parseInt(param, 10) }
       : { gp_id: param };
-    const race = await Race.findOne(query);
+
+    const race = await Race.findOne(query)
+      .populate({
+        path: "race_results.podium.driver_id",
+        select: "driver_id first_name last_name nationality",
+      })
+      .populate({
+        path: "race_results.podium.constructor_id",
+        select: "constructor_id name nationality",
+      });
+
     if (!race)
       return res
         .status(404)

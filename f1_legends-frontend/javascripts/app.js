@@ -5,7 +5,8 @@
 
 // Détection automatique : en local utilise http://localhost:3000, en production sur Vercel utilise des requêtes relatives ""
 const API_BASE =
-  window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
     ? "http://localhost:3000"
     : "";
 
@@ -1021,7 +1022,28 @@ function renderRacesList(races, season) {
 
   list.innerHTML = races
     .map((r, idx) => {
-      const winner = r.race_results?.winner_driver_id || "À venir";
+      const rawWinner = r.race_results?.winner_driver_id;
+      const podiumFirst = r.race_results?.podium?.[0]?.driver_id;
+
+      // Récupère l'objet pilote peuplé (depuis winner_driver_id ou depuis la P1 du podium)
+      const winnerObj =
+        rawWinner && typeof rawWinner === "object"
+          ? rawWinner
+          : podiumFirst && typeof podiumFirst === "object"
+            ? podiumFirst
+            : null;
+
+      let winnerDisplay = "À venir";
+      if (winnerObj) {
+        const initial = winnerObj.first_name
+          ? `${winnerObj.first_name.charAt(0).toUpperCase()}. `
+          : "";
+        winnerDisplay =
+          `${initial}${winnerObj.last_name || winnerObj.driver_id || ""}`.trim();
+      } else if (typeof rawWinner === "string" && rawWinner.trim() !== "") {
+        winnerDisplay = rawWinner;
+      }
+
       const circuit = r.circuit || {};
       return `
         <div class="sc-list-item ${idx === 0 ? "selected" : ""}" onclick="showRaceDetail(${idx}, this)">
@@ -1029,7 +1051,7 @@ function renderRacesList(races, season) {
             <span class="item-name">R${r.round_number} · ${r.gp_name}</span>
             <span class="item-meta" style="display:block;">${circuit.country || ""} · ${circuit.name || ""}</span>
           </div>
-          <span class="item-stat">🥇 ${winner}</span>
+          <span class="item-stat">🥇 ${winnerDisplay}</span>
         </div>
       `;
     })
@@ -1053,6 +1075,24 @@ function showRaceDetail(idx, rowEl) {
   const circuit = r.circuit || {};
   const medals = ["🥇", "🥈", "🥉"];
 
+  const polemanObj =
+    typeof results.qualifications?.poleman_driver_id === "object" &&
+    results.qualifications?.poleman_driver_id !== null
+      ? results.qualifications.poleman_driver_id
+      : null;
+  const polemanName = polemanObj
+    ? `${polemanObj.first_name || ""} ${polemanObj.last_name || ""}`.trim()
+    : results.qualifications?.poleman_driver_id || "—";
+
+  const flObj =
+    typeof results.fastest_lap?.driver_id === "object" &&
+    results.fastest_lap?.driver_id !== null
+      ? results.fastest_lap.driver_id
+      : null;
+  const flName = flObj
+    ? `${flObj.first_name || ""} ${flObj.last_name || ""}`.trim()
+    : results.fastest_lap?.driver_id || "—";
+
   panel.innerHTML = `
     <div style="border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:8px;">
       <div style="font-family:'Orbitron',sans-serif;font-size:0.95rem;font-weight:900;color:#fff;">
@@ -1068,22 +1108,44 @@ function showRaceDetail(idx, rowEl) {
       ${
         podium.length
           ? podium
-              .map(
-                (p, i) => `
-          <div class="sc-list-item" onclick="openDriverModal('${p.driver_id}')">
-            <span class="item-name">${medals[i] || "·"} P${p.position} — ${p.driver_id}</span>
-            <span class="item-stat">${p.constructor_id || ""}</span>
-          </div>
-        `,
-              )
+              .map((p, i) => {
+                const driverObj =
+                  typeof p.driver_id === "object" && p.driver_id !== null
+                    ? p.driver_id
+                    : null;
+                const ctorObj =
+                  typeof p.constructor_id === "object" &&
+                  p.constructor_id !== null
+                    ? p.constructor_id
+                    : null;
+
+                const driverName = driverObj
+                  ? `${driverObj.first_name || ""} ${driverObj.last_name || ""}`.trim()
+                  : p.driver_id || "—";
+
+                const ctorName = ctorObj
+                  ? ctorObj.name || ctorObj.constructor_id || ""
+                  : p.constructor_id || "";
+
+                const rawDriverId = driverObj
+                  ? driverObj.driver_id
+                  : p.driver_id;
+
+                return `
+                  <div class="sc-list-item" onclick="openDriverModal('${rawDriverId}')">
+                    <span class="item-name">${medals[i] || "·"} P${p.position} — ${driverName}</span>
+                    <span class="item-stat">${ctorName}</span>
+                  </div>
+                `;
+              })
               .join("")
           : `<div class="sc-list-item"><span class="item-meta">Résultats non disponibles</span></div>`
       }
     </div>
 
-    <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.08);border-radius:5px;padding:8px 10px;font-family:'Share Tech Mono',monospace;font-size:0.66rem;line-height:1.6;">
-      <div>🏎️ <strong>Pole Position :</strong> <span style="color:var(--f1-cyan);">${results.qualifications?.poleman_driver_id || "—"}</span> ${results.qualifications?.qualif_fastest_lap ? `(${results.qualifications.qualif_fastest_lap})` : ""}</div>
-      <div>⚡ <strong>Meilleur Tour :</strong> <span style="color:var(--f1-yellow);">${results.fastest_lap?.driver_id || "—"}</span> ${results.fastest_lap?.lap_time ? `(${results.fastest_lap.lap_time})` : ""}</div>
+    <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:10px 12px;font-family:'Share Tech Mono',monospace;font-size:0.82rem;line-height:1.7;display:flex;flex-direction:column;gap:3px;">
+      <div>🏎️ <strong>Pole Position :</strong> <span style="color:var(--f1-cyan);">${polemanName}</span> ${results.qualifications?.qualif_fastest_lap ? `(${results.qualifications.qualif_fastest_lap})` : ""}</div>
+      <div>⚡ <strong>Meilleur Tour :</strong> <span style="color:var(--f1-yellow);">${flName}</span> ${results.fastest_lap?.lap_time ? `(${results.fastest_lap.lap_time})` : ""}</div>
       <div>⏱️ <strong>Temps Vainqueur :</strong> ${results.winning_time || "—"} · <strong>gp_id :</strong> ${r.gp_id}</div>
     </div>
   `;
@@ -1244,8 +1306,7 @@ async function runNoSQLQuery(endpoint, method, label) {
     outputEl.textContent = JSON.stringify(payload, null, 2);
   } catch {
     if (countEl) countEl.textContent = "ERREUR";
-    outputEl.textContent =
-      `Erreur : impossible de joindre le backend (${API_BASE || "serveur"}).`;
+    outputEl.textContent = `Erreur : impossible de joindre le backend (${API_BASE || "serveur"}).`;
   }
 }
 
